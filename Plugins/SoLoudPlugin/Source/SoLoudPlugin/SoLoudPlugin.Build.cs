@@ -9,51 +9,54 @@ public class SoLoudPlugin : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        string SoLoudPath = Path.Combine(ModuleDirectory, "../ThirdParty/SoLoud");
-
+		string SoLoudPath = Path.Combine(ModuleDirectory, "../ThirdParty/SoLoud");
 		string Sdl2Path = Path.Combine(ModuleDirectory, "../ThirdParty/SDL2-2.30.0");
 
-        PublicIncludePaths.AddRange(
-			new string[] {
-				// ... add public include paths required here ...
+		PublicIncludePaths.AddRange(
+			new string[]
+			{
 				Path.Combine(Sdl2Path, "include"),
 			}
-			);
-				
-		
+		);
+
 		PrivateIncludePaths.AddRange(
-			new string[] {
-				// ... add other private include paths required here ...
+			new string[]
+			{
 				Path.Combine(SoLoudPath, "include"),
 				Path.Combine(SoLoudPath, "src/core"),
 				Path.Combine(SoLoudPath, "src/audiosource/wav"),
 				Path.Combine(SoLoudPath, "src/backend/sdl2_static"),
-            }
-		);		
-		
-		
-		// AddEngineThirdPartyPrivateStaticDependencies(Target, "SDL2");
-		PublicAdditionalLibraries.Add(Path.Combine(Sdl2Path, "lib", "x64", "SDL2.lib"));
-		RuntimeDependencies.Add("$(PluginDir)/Binaries/Win64/SDL2.dll");
+			}
+		);
 
-		PublicDefinitions.Add("WITH_SDL2_STATIC=1");
-		PublicDefinitions.Add("SOLOUD_DLL_EXPORT=1");
-		
+		if (Target.Platform == UnrealTargetPlatform.Win64)
+		{
+			string SdlLibPath = Path.Combine(Sdl2Path, "lib", "x64", "SDL2.lib");
+			string SdlDllPath = Path.Combine(Sdl2Path, "lib", "x64", "SDL2.dll");
 
-        // Disabilitiamo i warning che bloccherebbero la build
+			PublicAdditionalLibraries.Add(SdlLibPath);
+			PublicDelayLoadDLLs.Add("SDL2.dll");
+			RuntimeDependencies.Add("$(BinaryOutputDir)/SDL2.dll", SdlDllPath);
+		}
+
+		// Disabilitiamo i warning che bloccherebbero la build
 		CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Off;
 		CppCompileWarningSettings.ShadowVariableWarningLevel = WarningLevel.Off;
 
-        PublicDependencyModuleNames.AddRange(
+		// Mantengo la tua define esistente
+		PublicDefinitions.Add("SOLOUD_DLL_EXPORT=1");
+
+		// IMPORTANTE:
+		// tolgo WITH_SDL2_STATIC=1 perché nel tuo setup stai usando SDL2.dll,
+		// quindi non è un linking statico reale.
+
+		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"Core",
-                //"SDL2"
-				// ... add other public dependencies that you statically link with here ...
 			}
 		);
-			
-		
+
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -62,16 +65,13 @@ public class SoLoudPlugin : ModuleRules
 				"Slate",
 				"SlateCore",
 				"DeveloperSettings"
-				// ... add private dependencies that you statically link with here ...	
 			}
-			);
-		
-		
+		);
+
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
-				// ... add any modules that your module loads dynamically here ...
 			}
-			);
+		);
 	}
 }
