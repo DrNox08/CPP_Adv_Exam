@@ -21,7 +21,7 @@ public class Exam_CPPAdvanced : ModuleRules
 			"Slate"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[] { "SimpleLoader" });
 
 		PublicIncludePaths.AddRange(new string[] {
 			"Exam_CPPAdvanced",
